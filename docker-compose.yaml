@@ -27,10 +27,10 @@ x-airflow-common:
     # If you want to use it, outcomment it and replace airflow.cfg with the name of your config file
     # AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
   volumes:
-    - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
-    - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
-    - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
-    - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
+    - ${AIRFLOW_PROJ_DIR:-.}airflow/dags:/opt/airflow/dags
+    - ${AIRFLOW_PROJ_DIR:-.}airflow/logs:/opt/airflow/logs
+    - ${AIRFLOW_PROJ_DIR:-.}airflow/config:/opt/airflow/config
+    - ${AIRFLOW_PROJ_DIR:-.}airflow/plugins:/opt/airflow/plugins
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -45,10 +45,12 @@ services:
     platform: linux/amd64
     container_name: minio
     entrypoint: sh
-    command:   '-c ''mkdir -p /minio_data/raw && mkdir -p /minio_data/trusted && minio server /minio_data --console-address ":9001"'''
+    command:   '-c ''minio server /minio_data --console-address ":9001"'''
     ports:
-      - "9050:9000"
-      - "9051:9001"
+      # - "9050:9000" legacy
+      # - "9051:9001" legacy
+      - "9000:9000"
+      - "9001:9001"
     hostname: minio
     environment:
       MINIO_ROOT_USER: admin
@@ -57,6 +59,12 @@ services:
       MINIO_SECRET_KEY: datalake
     volumes:
       - ./minio/data:/data
+      - ./minio/keys:/keys
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 30s
+      retries: 5
 
   minio-init:
     image: minio/mc
@@ -69,7 +77,7 @@ services:
       /usr/bin/mc mb myminio/bronze;
       /usr/bin/mc mb myminio/silver;
       /usr/bin/mc mb myminio/gold;
-      /usr/bin/mc idp ldap accesskey create minio/
+      /usr/bin/mc admin accesskey create myminio/ admin --name nifi_key --access-key nifi_key --secret-key nifi_secret;
       exit 0;
       "
 
