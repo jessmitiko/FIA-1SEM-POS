@@ -1,2 +1,3 @@
 airflow/logs/*
-spark/work/.*
+spark/work/**/.*
+.*
