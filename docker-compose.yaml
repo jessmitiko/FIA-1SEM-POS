@@ -77,30 +77,9 @@ services:
       /usr/bin/mc mb myminio/bronze;
       /usr/bin/mc mb myminio/silver;
       /usr/bin/mc mb myminio/gold;
-      /usr/bin/mc admin accesskey create myminio/ admin --name nifi_key --access-key nifi_key --secret-key nifi_secret;
+      /usr/bin/mc admin accesskey create myminio/ admin --name spark_key --access-key spark_key --secret-key spark_secret;
       exit 0;
       "
-
-  nifi:
-      image: apache/nifi:latest
-      platform: linux/amd64
-      container_name: nifi
-      hostname: nifi
-      volumes:
-        - ./nifi/util:/util
-      environment:
-        NIFI_WEB_HTTP_PORT: "9090"
-        NIFI_WEB_HTTPS_HOST: "nifi"
-        TZ: "America/Sao_Paulo"
-      command: >
-        sh -c "ln -snf /usr/share/zoneinfo/$$TZ /etc/localtime && echo $$TZ > /etc/timezone"
-      
-      ports:
-        - 49090:9090
-      deploy:
-        resources:
-          limits:
-            memory: 2g
 
   spark-master:
     image: fjardim/mds-spark
