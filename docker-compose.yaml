@@ -80,7 +80,7 @@ services:
       /usr/bin/mc mb myminio/silver;
       /usr/bin/mc mb myminio/gold;
       /usr/bin/mc put /data/sample.json myminio/bronze;
-      /usr/bin/mc admin accesskey create myminio/ admin --name spark_key --access-key spark_key --secret-key spark_secret;
+      /usr/bin/mc admin accesskey create myminio/ admin --name datalake --access-key datalake --secret-key datalake;
       exit 0;
       "
 
@@ -106,6 +106,8 @@ services:
     volumes:
       - ./spark/work:/home/user 
       - ./spark/env:/env 
+    env_file:
+      - ./spark/env/jupyter.env
     deploy:
       resources:
         limits:
