@@ -28,7 +28,7 @@ ingestion_raw_terminal_linhas = SparkSubmitOperator(
 ingestion_silver_terminal_linhas = SparkSubmitOperator(
     application="/opt/airflow/jobs/silver/ingestion-linhas.py", 
     task_id="ingestion-silver-terminal_linhas",
-    packages="org.apache.hadoop:hadoop-aws:3.2.0,io.delta:delta-core_2.12:2.4.0",
+    packages="io.delta:delta-core_2.12:2.1.0,org.apache.hadoop:hadoop-aws:3.3.2,com.amazonaws:aws-java-sdk-bundle:1.11.1026",
     env_vars={
         "AWS_ACCESS_KEY_ID": "{{ var.value.AWS_ACCESS_KEY_ID }}",
         "AWS_SECRET_ACCESS_KEY": "{{ var.value.AWS_SECRET_ACCESS_KEY }}",
@@ -37,4 +37,28 @@ ingestion_silver_terminal_linhas = SparkSubmitOperator(
     dag=dag
 )
 
-ingestion_raw_terminal_linhas >> ingestion_silver_terminal_linhas
+ingestion_raw_paradas_by_linhas = SparkSubmitOperator(
+    application="/opt/airflow/jobs/bronze/ingestion-paradas_by_linhas.py", 
+    task_id="ingestion-raw-paradas_by_linhas",
+    packages="org.apache.hadoop:hadoop-aws:3.3.2",
+    env_vars={
+        "AWS_ACCESS_KEY_ID": "{{ var.value.AWS_ACCESS_KEY_ID }}",
+        "AWS_SECRET_ACCESS_KEY": "{{ var.value.AWS_SECRET_ACCESS_KEY }}",
+        "S3_ENDPOINT": "{{ var.value.S3_ENDPOINT }}"
+    },
+    dag=dag
+)
+
+ingestion_silver_paradas_by_linhas = SparkSubmitOperator(
+    application="/opt/airflow/jobs/silver/ingestion-paradas_by_linhas.py", 
+    task_id="ingestion-silver-paradas_by_linhas",
+    packages="org.apache.hadoop:hadoop-aws:3.3.2",
+    env_vars={
+        "AWS_ACCESS_KEY_ID": "{{ var.value.AWS_ACCESS_KEY_ID }}",
+        "AWS_SECRET_ACCESS_KEY": "{{ var.value.AWS_SECRET_ACCESS_KEY }}",
+        "S3_ENDPOINT": "{{ var.value.S3_ENDPOINT }}"
+    },
+    dag=dag
+)
+
+ingestion_raw_terminal_linhas >> ingestion_silver_terminal_linhas >> ingestion_raw_paradas_by_linhas >> ingestion_silver_paradas_by_linhas
