@@ -28,7 +28,7 @@ ingestion_raw_terminal_linhas = SparkSubmitOperator(
 ingestion_silver_terminal_linhas = SparkSubmitOperator(
     application="/opt/airflow/jobs/silver/ingestion-linhas.py", 
     task_id="ingestion-silver-terminal_linhas",
-    packages="org.apache.hadoop:hadoop-aws:3.2.0,io.delta:delta-core_2.12:2.4.0",
+    packages="io.delta:delta-core_2.12:2.1.0,org.apache.hadoop:hadoop-aws:3.3.2,com.amazonaws:aws-java-sdk-bundle:1.11.1026",
     env_vars={
         "AWS_ACCESS_KEY_ID": "{{ var.value.AWS_ACCESS_KEY_ID }}",
         "AWS_SECRET_ACCESS_KEY": "{{ var.value.AWS_SECRET_ACCESS_KEY }}",

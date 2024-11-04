@@ -23,10 +23,14 @@ if __name__ == "__main__":
 
     df=df.withColumn('date', lit(today)) #add date as ingestion date
 
-    df.write.format('delta') \
-        .mode('overwrite') \
-        .option('overwriteSchema', 'true') \
-        .partitionBy('date') \
-        .save('s3a://silver/linhas/')
-    
+    df.show(5)
+
+    # df.write.format('delta') \
+    #     .mode('overwrite') \
+    #     .option('overwriteSchema', 'true') \
+    #     .partitionBy('date') \
+    #     .save('s3a://silver/linhas/')
+
+    df.write.option('header', 'true').csv('s3a://silver/linhas/data.csv')
+
     print('done!')
