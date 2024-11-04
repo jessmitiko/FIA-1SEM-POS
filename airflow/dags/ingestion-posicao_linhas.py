@@ -1,18 +1,18 @@
 from airflow import DAG
 from datetime import datetime
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2024, 11, 5),
+    'start_date': datetime(2024, 11, 4),
     'email_on_failure': False,
     'email_on_retry': False,
-    'catchup': False,
     'retries': 1
 }
 
-dag = DAG('ingestion-posicao_linhas', default_args=default_args, schedule_interval='*/10 * * * *')
+dag = DAG('ingestion-posicao_linhas', catchup=False, default_args=default_args, schedule_interval='*/2 * * * *') #*/10 * * * *
 
 ingestion_raw_posicao_by_linha = SparkSubmitOperator(
     application="/opt/airflow/jobs/bronze/ingestion-posicao_by_linha.py", 
@@ -38,4 +38,10 @@ ingestion_silver_posicao_by_linha = SparkSubmitOperator(
     dag=dag
 )
 
-ingestion_raw_posicao_by_linha >> ingestion_silver_posicao_by_linha
+final_gold_linhas_dag = TriggerDagRunOperator(
+    task_id="final-gold-linhas_dag",
+    trigger_dag_id="final-linhas",
+    dag=dag
+)
+
+ingestion_raw_posicao_by_linha >> ingestion_silver_posicao_by_linha >> final_gold_linhas_dag
