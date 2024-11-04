@@ -8,11 +8,10 @@ default_args = {
     'start_date': datetime(2024, 11, 2),
     'email_on_failure': False,
     'email_on_retry': False,
-    'catchup': False,
     'retries': 1
 }
 
-dag = DAG('ingestion-linhas', default_args=default_args, schedule_interval='@daily')
+dag = DAG('ingestion-linhas', catchup=False, default_args=default_args, schedule_interval='@daily')
 
 ingestion_raw_terminal_linhas = SparkSubmitOperator(
     application="/opt/airflow/jobs/bronze/ingestion-linhas.py", 
