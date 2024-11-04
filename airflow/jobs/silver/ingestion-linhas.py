@@ -31,6 +31,6 @@ if __name__ == "__main__":
     #     .partitionBy('date') \
     #     .save('s3a://silver/linhas/')
 
-    df.write.option('header', 'true').csv('s3a://silver/linhas/data.csv')
+    df.write.option('header', 'true').mode('overwrite').csv('s3a://silver/linhas/csv/')
 
     print('done!')
