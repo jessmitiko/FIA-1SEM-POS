@@ -20,8 +20,9 @@ if __name__ == "__main__":
     df=spark.read.json(f's3a://bronze/posicao_by_linha/dt_ingestion={today}*')
 
     #plan struct df to save to a csv
-    exploded_df=df.select(col("hr"), explode(col("vs")).alias("vs_exploded"))
+    exploded_df=df.select(col("cl"), col("hr"), explode(col("vs")).alias("vs_exploded"))
     flat_df=exploded_df.select(
+        col("cl"),
         col("hr"),
         col("vs_exploded.p").alias("p"),
         col("vs_exploded.a").alias("a"),
