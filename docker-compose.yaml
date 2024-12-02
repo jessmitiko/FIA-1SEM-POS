@@ -45,6 +45,35 @@ x-airflow-common:
       condition: service_healthy
   
 services:
+  nifi:
+      image: apache/nifi:latest
+      platform: linux/amd64
+      container_name: nifi
+      hostname: nifi
+      volumes:
+        - ./nifi/util:/util
+        - ./nifi/database_repository:/opt/nifi/nifi-current/database_repository
+        - ./nifi/flowfile_repository:/opt/nifi/nifi-current/flowfile_repository
+        - ./nifi/content_repository:/opt/nifi/nifi-current/content_repository
+        - ./nifi/provenance_repository:/opt/nifi/nifi-current/provenance_repository
+        - ./nifi/state:/opt/nifi/nifi-current/state
+        - ./nifi/logs:/opt/nifi/nifi-current/logs
+        - ./nifi/conf:/opt/nifi/nifi-current/conf
+      environment:
+        NIFI_WEB_HTTP_PORT: "9090"
+        NIFI_WEB_HTTPS_HOST: "nifi"
+        TZ: "America/Sao_Paulo"
+      command: >
+        sh -c "ln -snf /usr/share/zoneinfo/$$TZ /etc/localtime && echo $$TZ > /etc/timezone"
+      
+      ports:
+        - 49090:9090
+      deploy:
+        resources:
+          limits:
+            memory: 2g
+            #cpus: '0.2'  
+
   minio:
     image: minio/minio:latest
     platform: linux/amd64
